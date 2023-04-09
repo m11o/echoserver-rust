@@ -3,32 +3,19 @@ mod socket;
 mod tcp;
 mod tcpflags;
 
-use std::error::Error;
-use std::io::{Read, Write};
-use std::net::TcpListener;
-use std::{env, str, thread};
+use anyhow::Result;
+use std::{env, io, net::Ipv4Addr, str};
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> Result<(), ()> {
     let args: Vec<String> = env::args().collect();
-    let addr = &args[1];
-    echo_server(addr)?;
+    let addr: Ipv4Addr = args[1].parse()?;
+    let port: u16 = args[2].parse()?;
+    echo_client(addr, port)?;
     Ok(())
 }
 
-fn echo_server(address: &str) -> Result<(), Box<dyn Error>> {
-    let listener = TcpListener::bind(address)?; // [1]
-    loop {
-        let (mut stream, _) = listener.accept()?; // [2]
-        thread::spawn(move || { // [3]
-            let mut buffer = [0u8; 1024];
-            loop {
-                let nbytes = stream.read(&mut buffer).unwrap(); // [4]
-                if nbytes == 0 { // [6]
-                    return;
-                }
-                println!("{}", str::from_utf8(&buffer[..nbytes]).unwrap());
-                stream.write_all(&buffer[..nbytes]).unwrap(); // [5]
-            }
-        });
-    }
+fn echo_client(remote_addr: Ipv4Addr, remote_port: u16) -> Result<(), ()> {
+    let tcp = TCP::new();
+    let _ = tcp.connect(remote_addr, remote_port)?;
+    Ok(())
 }
