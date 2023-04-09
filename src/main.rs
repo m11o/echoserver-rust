@@ -1,3 +1,8 @@
+mod packet;
+mod socket;
+mod tcp;
+mod tcpflags;
+
 use std::error::Error;
 use std::io::{Read, Write};
 use std::net::TcpListener;
