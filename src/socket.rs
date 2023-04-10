@@ -44,4 +44,17 @@ impl Socket {
             sender,
         })
     }
+
+    pub fn send_tcp_packet(&mut self, flag: u8, payload: &[u8]) -> Result<usize, ()> {
+        let mut tcp_packet = TCPPacket::new(payload.len());
+        tcp_packet.set_src(self.local_port);
+        tcp_packet.set_dest(self.remote_port);
+        tcp_packet.set_flag(flag);
+        let sent_size = self.sender.send_to(tcp_packet.clone(), Ipv4Addr::V4(self.remote_addr)).unwrap();
+        Ok(sent_size)
+    }
+
+    pub fn get_sock_id(&self) -> SockID {
+        SockID(self.local_addr, self.remote_addr, self.local_port, self.remote_port)
+    }
 }
