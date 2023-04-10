@@ -30,7 +30,6 @@ impl Socket {
         remote_addr: Ipv4Addr,
         local_port: u16,
         remote_port: u16,
-        sender: TransportSender,
     ) -> Result<Self, ()> {
         let (sender, _) = transport::transport_channel(
             65535,
